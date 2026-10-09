@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototype Sistem Retribusi Pasar</title>
+<style>
+:root{
+  --bg:#f5f7f7;--card:#fff;--ink:#1f2d2a;--muted:#6d7a77;--line:#dfe6e3;
+  --pri:#176b5b;--pri2:#0f4f43;--soft:#eaf3f0;--warn:#b57d00;--danger:#a93f32;
+  --ok:#2c7a55;--blue:#3d6ea8;--sidebar:#103c34;--sidebar2:#185347;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+aside{width:258px;background:var(--sidebar);color:#dce8e5;padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{padding:8px 10px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand b{display:block;color:white;font-size:16px}.brand small{opacity:.72}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin:18px 10px 7px}
+.nav button{display:block;width:100%;border:0;background:none;color:#dce8e5;text-align:left;padding:10px 12px;border-radius:7px;cursor:pointer;margin:2px 0}
+.nav button:hover{background:rgba(255,255,255,.07)}
+.nav button.active{background:var(--sidebar2);color:#fff;box-shadow:inset 3px 0 0 #d8ad47}
+main{flex:1;min-width:0;padding:20px 24px 40px;max-width:1500px}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.topbar h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:12.5px}
+.userbox{margin-left:auto;background:white;border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-align:right}
+.userbox b{display:block}.pill{display:inline-block;padding:2px 7px;border-radius:999px;background:var(--soft);color:var(--pri);font-size:11px}
+.grid-kpi{display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:12px;margin-bottom:14px}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card{padding:13px 14px;border-left:4px solid var(--pri)}
+.card small{color:var(--muted);display:block;margin-bottom:5px}.card strong{font-size:20px}
+.panel{padding:16px;margin-bottom:14px}
+.panel h2{font-size:16px;margin:0 0 12px}.panel h3{font-size:14px;margin:16px 0 8px}
+.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.row>div{flex:1;min-width:150px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.full{grid-column:1/-1}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:6px;padding:9px 10px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid #7bb9ac55;border-color:var(--pri)}
+.btn{border:0;border-radius:6px;padding:9px 13px;font-weight:600;background:var(--pri);color:white;cursor:pointer}
+.btn.secondary{background:white;color:var(--pri);border:1px solid var(--pri)}
+.btn.warn{background:var(--warn)}.btn.danger{background:var(--danger)}.btn.sm{padding:5px 8px;font-size:12px}
+table{width:100%;border-collapse:collapse}.tablewrap{overflow:auto}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--soft);text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right}.tag{display:inline-block;padding:2px 7px;border-radius:4px;background:var(--soft);font-size:11px;color:var(--pri)}
+.tag.ok{background:#e7f5ed;color:var(--ok)}.tag.warn{background:#fff5d9;color:#8b6400}.tag.bad{background:#fdebe8;color:var(--danger)}
+.section{display:none}.section.active{display:block}
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:140px 1fr 120px;gap:8px;align-items:center}
+.bar{height:9px;background:var(--soft);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pri)}
+.notice{padding:10px 12px;border-left:4px solid var(--warn);background:#fff9e9;border-radius:6px;margin-bottom:12px}
+.okbox{padding:10px 12px;border-left:4px solid var(--ok);background:#eef8f2;border-radius:6px;margin-bottom:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:white;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer}.tabs button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.muted{color:var(--muted)}.money{font-variant-numeric:tabular-nums;white-space:nowrap}
+.timeline{display:grid;gap:7px}.timeline div{padding:8px 10px;background:var(--soft);border-radius:6px}
+.serialbox{font-family:Consolas,monospace;background:#f7f9f8;border:1px dashed var(--line);padding:8px;border-radius:6px}
+.footer-note{margin-top:20px;color:var(--muted);font-size:12px}
+@media(max-width:1100px){.grid-kpi{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media(max-width:760px){aside{position:fixed;z-index:10;transform:translateX(-100%)}main{padding:14px}.grid,.grid-kpi{grid-template-columns:1fr}.bar-row{grid-template-columns:100px 1fr 90px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><b>Sistem Retribusi Pasar</b><small>Prototype Phase 1 · CMS + Dashboard</small></div>
+  <div class="nav">
+    <div class="nav-title">Monitoring</div>
+    <button class="active" data-page="dashboard">Dashboard</button>
+    <button data-page="tunggakan">Tunggakan</button>
+
+    <div class="nav-title">Transaksi</div>
+    <button data-page="penerimaan">Penerimaan</button>
+    <button data-page="setoran">Setoran</button>
+
+    <div class="nav-title">Media / Karcis</div>
+    <button data-page="stok">Penerimaan Stok</button>
+    <button data-page="distribusi">Distribusi Media</button>
+    <button data-page="tracking">Tracking Nomor Seri</button>
+
+    <div class="nav-title">Master Data</div>
+    <button data-page="master-pasar">Pasar</button>
+    <button data-page="master-objek">Jenis Retribusi</button>
+    <button data-page="master-tarif">Tarif</button>
+    <button data-page="master-unit">Kios / Los / Pelataran</button>
+    <button data-page="master-petugas">Petugas</button>
+
+    <div class="nav-title">Laporan</div>
+    <button data-page="laporan">Rekap & Laporan</button>
+
+    <div class="nav-title">Sistem</div>
+    <button data-page="user-role">User & Role</button>
+    <button data-page="audit">Audit Log</button>
+    <button data-page="periode">Closing Periode</button>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="sub">Buku Kas Bendahara Penerimaan · Retribusi Pelayanan Pasar</div>
+    </div>
+    <div class="userbox"><span class="pill">Administrator</span><b>Demo User</b><small class="muted">Prototype lokal</small></div>
+  </div>
+
+  <section id="dashboard" class="section active">
+    <div class="notice"><b>Prototype:</b> data di halaman ini hanya data contoh untuk memvalidasi alur bisnis sebelum development production.</div>
+    <div class="row" style="margin-bottom:12px">
+      <div><label>Periode</label><input type="month" value="2026-10"></div>
+      <div><label>Pasar</label><select><option>Semua Pasar</option><option>Pasar Panorama</option><option>Pasar Minggu</option><option>Pasar Barukoto</option></select></div>
+      <div><button class="btn secondary">Terapkan Filter</button></div>
+    </div>
+
+    <div class="grid-kpi">
+      <div class="card"><small>Total Penerimaan</small><strong>Rp128,4 jt</strong><div class="sub">Oktober 2026</div></div>
+      <div class="card"><small>Sudah Disetor</small><strong>Rp117,2 jt</strong><div class="sub">91,3% penerimaan</div></div>
+      <div class="card"><small>Belum Disetor</small><strong>Rp11,2 jt</strong><div class="sub">Outstanding kas</div></div>
+      <div class="card"><small>Media Terpakai</small><strong>8.412</strong><div class="sub">STRD + karcis</div></div>
+      <div class="card"><small>Nilai Tunggakan</small><strong>Rp22,7 jt</strong><div class="sub">413 unit</div></div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>Penerimaan per pasar</h2>
+        <div class="bar-list">
+          <div class="bar-row"><span>Pasar Panorama</span><div class="bar"><i style="width:92%"></i></div><b class="money">Rp48,3 jt</b></div>
+          <div class="bar-row"><span>Pasar Minggu</span><div class="bar"><i style="width:74%"></i></div><b class="money">Rp38,7 jt</b></div>
+          <div class="bar-row"><span>Pasar Barukoto</span><div class="bar"><i style="width:58%"></i></div><b class="money">Rp30,1 jt</b></div>
+          <div class="bar-row"><span>Ruko KZ Abidin</span><div class="bar"><i style="width:22%"></i></div><b class="money">Rp11,3 jt</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Status Media</h2>
+        <table>
+          <thead><tr><th>Media</th><th class="num">Gudang</th><th class="num">Di Pasar</th><th class="num">Terpakai</th></tr></thead>
+          <tbody>
+            <tr><td>STRD</td><td class="num">4.250</td><td class="num">2.800</td><td class="num">6.180</td></tr>
+            <tr><td>Karcis</td><td class="num">7.100</td><td class="num">4.500</td><td class="num">2.232</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Rekap per pasar</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Pasar</th><th class="num">Penerimaan</th><th class="num">Setoran</th><th class="num">Belum Disetor</th><th class="num">Tunggakan</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Pasar Panorama</td><td class="num money">Rp48.300.000</td><td class="num money">Rp46.000.000</td><td class="num money">Rp2.300.000</td><td class="num money">Rp7.800.000</td><td><span class="tag ok">Normal</span></td></tr>
+          <tr><td>Pasar Minggu</td><td class="num money">Rp38.700.000</td><td class="num money">Rp34.500.000</td><td class="num money">Rp4.200.000</td><td class="num money">Rp8.100.000</td><td><span class="tag warn">Perlu cek</span></td></tr>
+          <tr><td>Pasar Barukoto</td><td class="num money">Rp30.100.000</td><td class="num money">Rp27.600.000</td><td class="num money">Rp2.500.000</td><td class="num money">Rp6.800.000</td><td><span class="tag ok">Normal</span></td></tr>
+          <tr><td>Ruko KZ Abidin</td><td class="num money">Rp11.300.000</td><td class="num money">Rp9.100.000</td><td class="num money">Rp2.200.000</td><td class="num money">-</td><td><span class="tag warn">Outstanding</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="penerimaan" class="section">
+    <div class="panel">
+      <h2>Catat Penerimaan</h2>
+      <div class="grid">
+        <div><label>Tanggal</label><input type="date" value="2026-10-07"></div>
+        <div><label>Pasar</label><select id="recMarket"><option>Pasar Panorama</option><option>Pasar Minggu</option><option>Pasar Barukoto</option></select></div>
+        <div><label>Kios / Los / Unit</label><select><option>A-01 · Kios · Ibu Sari</option><option>A-02 · Los · Bpk Andi</option><option>B-11 · Pelataran · Bpk Ujang</option></select></div>
+        <div><label>Objek Retribusi</label><select><option>Kios</option><option>Los/Auning</option><option>Pelataran</option></select></div>
+        <div><label>Nomor Seri Awal</label><input id="recA" value="120501" maxlength="6"></div>
+        <div><label>Nomor Seri Akhir</label><input id="recB" value="120501" maxlength="6"></div>
+        <div><label>Periode Bayar</label><input type="month" value="2026-10"></div>
+        <div><label>Jumlah Bulan</label><input type="number" min="1" max="36" value="1"></div>
+        <div><label>Nominal Seharusnya</label><input value="25.000" readonly></div>
+        <div><label>Nominal Diterima</label><input value="25.000"></div>
+        <div><label>Metode</label><select><option>Tunai</option><option>Transfer</option><option>QRIS</option></select></div>
+        <div><label>No. Referensi Pembayaran</label><input placeholder="Opsional untuk tunai"></div>
+        <div class="full"><label>Keterangan</label><input placeholder="Catatan jika diperlukan"></div>
+      </div>
+      <div id="serialValidation" class="okbox" style="margin-top:12px"><b>Validasi:</b> serial 120501 tersedia, dialokasikan ke Pasar Panorama, dan belum pernah digunakan.</div>
+      <button class="btn">Simpan Penerimaan</button>
+    </div>
+    <div class="panel">
+      <h2>Daftar Penerimaan</h2>
+      <div class="row" style="margin-bottom:10px"><div><label>Dari</label><input type="date"></div><div><label>Sampai</label><input type="date"></div><div><label>Cari</label><input placeholder="No transaksi / serial / nama"></div></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>No. Transaksi</th><th>Tanggal</th><th>Pasar</th><th>Serial</th><th>Unit</th><th class="num">Jumlah</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>TRX/2026/001248</td><td>07/10/2026</td><td>Pasar Panorama</td><td>120501</td><td>A-01</td><td class="num">Rp25.000</td><td><span class="tag ok">Active</span></td><td><button class="btn sm secondary">Detail</button> <button class="btn sm danger">Void</button></td></tr>
+          <tr><td>TRX/2026/001247</td><td>07/10/2026</td><td>Pasar Minggu</td><td>130210–130214</td><td>Pelataran</td><td class="num">Rp50.000</td><td><span class="tag ok">Active</span></td><td><button class="btn sm secondary">Detail</button> <button class="btn sm danger">Void</button></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="setoran" class="section">
+    <div class="panel">
+      <h2>Buat Setoran</h2>
+      <div class="grid">
+        <div><label>Tanggal Setoran</label><input type="date" value="2026-10-07"></div>
+        <div><label>Pasar / Sumber</label><select><option>Pasar Panorama</option><option>Pasar Minggu</option><option>Pasar Barukoto</option></select></div>
+        <div><label>Periode Penerimaan</label><input type="date" value="2026-10-07"></div>
+        <div><label>Sampai</label><input type="date" value="2026-10-07"></div>
+        <div><label>Bank / Rekening Tujuan</label><input value="Bank Daerah · Rekening Penerimaan"></div>
+        <div><label>No. Bukti Setor / STS</label><input placeholder="mis. STS/2026/00128"></div>
+        <div><label>Total Penerimaan Terpilih</label><input value="4.850.000" readonly></div>
+        <div><label>Jumlah Disetor</label><input value="4.850.000"></div>
+        <div class="full"><label>Keterangan</label><input></div>
+      </div>
+      <div class="okbox" style="margin-top:12px">42 transaksi belum disetor akan dikaitkan ke setoran ini. Selisih: <b>Rp0</b>.</div>
+      <button class="btn">Simpan Setoran</button>
+    </div>
+    <div class="panel">
+      <h2>Riwayat Setoran</h2>
+      <table><thead><tr><th>No. Setoran</th><th>Tanggal</th><th>Pasar</th><th>Transaksi</th><th class="num">Jumlah</th><th>Status</th></tr></thead>
+      <tbody><tr><td>STS/2026/00127</td><td>06/10/2026</td><td>Pasar Panorama</td><td>37</td><td class="num">Rp4.150.000</td><td><span class="tag ok">Terverifikasi</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="stok" class="section">
+    <div class="panel">
+      <h2>Penerimaan Stok Media dari Dinas</h2>
+      <div class="grid">
+        <div><label>Jenis Media</label><select><option>STRD</option><option>Karcis</option></select></div>
+        <div><label>Tanggal Terima</label><input type="date" value="2026-10-07"></div>
+        <div><label>Nomor Seri Awal</label><input value="150001"></div>
+        <div><label>Nomor Seri Akhir</label><input value="150500"></div>
+        <div><label>Jumlah Lembar</label><input value="500" readonly></div>
+        <div><label>No. Berita Acara / Dokumen</label><input placeholder="BA/..." /></div>
+        <div class="full"><label>Keterangan</label><input></div>
+      </div>
+      <button class="btn" style="margin-top:12px">Simpan Stok</button>
+    </div>
+    <div class="panel">
+      <h2>Kartu Stok</h2>
+      <table><thead><tr><th>Media</th><th>Tgl Terima</th><th>Range Seri</th><th class="num">Lembar</th><th class="num">Gudang</th><th class="num">Di Pasar</th><th class="num">Terpakai</th></tr></thead>
+      <tbody>
+        <tr><td>STRD</td><td>01/10/2026</td><td>120001–124999</td><td class="num">4.999</td><td class="num">1.100</td><td class="num">1.450</td><td class="num">2.449</td></tr>
+        <tr><td>Karcis</td><td>01/10/2026</td><td>130001–139999</td><td class="num">9.999</td><td class="num">3.250</td><td class="num">4.500</td><td class="num">2.249</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <section id="distribusi" class="section">
+    <div class="panel">
+      <h2>Distribusi / Serah Terima Media</h2>
+      <div class="grid">
+        <div><label>Pasar Tujuan</label><select><option>Pasar Panorama</option><option>Pasar Minggu</option><option>Pasar Barukoto</option></select></div>
+        <div><label>Tanggal Serah Terima</label><input type="date" value="2026-10-07"></div>
+        <div><label>Jenis Media</label><select><option>STRD</option><option>Karcis</option></select></div>
+        <div><label>No. Surat Permintaan</label><input placeholder="SURAT/..." /></div>
+        <div><label>Seri Awal</label><input value="150001"></div>
+        <div><label>Seri Akhir</label><input value="150100"></div>
+        <div><label>Jumlah Lembar</label><input value="100" readonly></div>
+        <div><label>Penerima</label><input value="Kepala Pasar Panorama"></div>
+        <div class="full"><label>No. Berita Acara</label><input value="BA/2026/00131"></div>
+      </div>
+      <div class="okbox" style="margin-top:12px">Range 150001–150100 tersedia di gudang dan belum pernah didistribusikan.</div>
+      <button class="btn">Simpan & Cetak Berita Acara</button>
+    </div>
+    <div class="panel">
+      <h2>Riwayat Distribusi</h2>
+      <table><thead><tr><th>No. BA</th><th>Tanggal</th><th>Pasar</th><th>Media</th><th>Range</th><th class="num">Lembar</th><th>Status</th></tr></thead>
+      <tbody><tr><td>BA/2026/00130</td><td>06/10/2026</td><td>Pasar Minggu</td><td>Karcis</td><td>130201–130400</td><td class="num">200</td><td><span class="tag ok">Aktif</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="tracking" class="section">
+    <div class="panel">
+      <h2>Tracking Nomor Seri</h2>
+      <div class="row"><div><label>Nomor Seri</label><input id="trackSerial" value="120501"></div><div><button id="trackBtn" class="btn">Cari</button></div></div>
+    </div>
+    <div class="panel" id="trackResult">
+      <div class="serialbox"><b>120501</b> · STRD · <span class="tag ok">USED</span></div>
+      <div class="timeline" style="margin-top:12px">
+        <div><b>01/10/2026</b> · Diterima dari Dinas · Batch STK/2026/001</div>
+        <div><b>03/10/2026</b> · Didistribusikan ke Pasar Panorama · BA/2026/00112</div>
+        <div><b>07/10/2026</b> · Digunakan untuk penerimaan TRX/2026/001248 · Rp25.000</div>
+        <div><b>Belum disetor</b> · Menunggu masuk ke setoran</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tunggakan" class="section">
+    <div class="panel">
+      <h2>Monitoring Tunggakan</h2>
+      <div class="row"><div><label>Dihitung Sampai</label><input type="month" value="2026-10"></div><div><label>Pasar</label><select><option>Semua</option><option>Pasar Panorama</option></select></div><div><label>Objek</label><select><option>Semua</option><option>Kios</option><option>Los/Auning</option></select></div></div>
+      <div class="grid-kpi" style="grid-template-columns:repeat(3,1fr);margin-top:12px"><div class="card"><small>Unit Menunggak</small><strong>413</strong></div><div class="card"><small>Total Bulan Tunggak</small><strong>812</strong></div><div class="card"><small>Nilai Tunggakan</small><strong>Rp22,7 jt</strong></div></div>
+      <table><thead><tr><th>Pasar</th><th>Unit</th><th>Wajib Retribusi</th><th>Petugas</th><th class="num">Bulan</th><th class="num">Nilai</th></tr></thead>
+      <tbody><tr><td>Pasar Panorama</td><td>A-17</td><td>Bpk Hasan</td><td>Ahmad</td><td class="num">3</td><td class="num">Rp75.000</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="master-pasar" class="section">
+    <div class="panel"><h2>Master Pasar</h2><button class="btn" style="margin-bottom:10px">+ Tambah Pasar</button>
+      <table><thead><tr><th>Kode</th><th>Nama</th><th>Tipe</th><th>Status</th><th></th></tr></thead>
+      <tbody><tr><td>PSR001</td><td>Pasar Panorama</td><td>Pasar</td><td><span class="tag ok">Aktif</span></td><td><button class="btn sm secondary">Ubah</button></td></tr><tr><td>RKO001</td><td>Ruko KZ Abidin 1</td><td>Ruko</td><td><span class="tag ok">Aktif</span></td><td><button class="btn sm secondary">Ubah</button></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="master-objek" class="section">
+    <div class="panel"><h2>Master Jenis Retribusi</h2><button class="btn" style="margin-bottom:10px">+ Tambah Jenis</button>
+      <table><thead><tr><th>Kode</th><th>Nama</th><th>Media</th><th>Periode</th><th>Status</th></tr></thead>
+      <tbody><tr><td>KIOS</td><td>Kios</td><td>STRD</td><td>Bulanan</td><td><span class="tag ok">Aktif</span></td></tr><tr><td>PELAT</td><td>Pelataran</td><td>Karcis</td><td>Per transaksi</td><td><span class="tag ok">Aktif</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="master-tarif" class="section">
+    <div class="panel"><h2>Master & Riwayat Tarif</h2><button class="btn" style="margin-bottom:10px">+ Tambah Tarif</button>
+      <table><thead><tr><th>Pasar</th><th>Objek</th><th class="num">Tarif</th><th>Berlaku Mulai</th><th>Berlaku Sampai</th><th>Status</th></tr></thead>
+      <tbody><tr><td>Pasar Panorama</td><td>Kios</td><td class="num">Rp25.000</td><td>01/07/2026</td><td>-</td><td><span class="tag ok">Aktif</span></td></tr><tr><td>Pasar Panorama</td><td>Kios</td><td class="num">Rp20.000</td><td>01/01/2026</td><td>30/06/2026</td><td><span class="tag">Historis</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="master-unit" class="section">
+    <div class="panel"><h2>Master Unit Kios / Los / Pelataran</h2>
+      <div class="row" style="margin-bottom:10px"><div><button class="btn">+ Tambah Unit</button></div><div><button class="btn secondary">Import Excel</button></div></div>
+      <table><thead><tr><th>Pasar</th><th>Blok / Unit</th><th>Objek</th><th>Wajib Retribusi</th><th>Petugas</th><th>Status</th><th>Berlaku Sejak</th></tr></thead>
+      <tbody><tr><td>Pasar Panorama</td><td>A-01</td><td>Kios</td><td>Ibu Sari</td><td>Ahmad</td><td><span class="tag ok">Berfungsi</span></td><td>Jan 2026</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="master-petugas" class="section">
+    <div class="panel"><h2>Master Petugas</h2><button class="btn" style="margin-bottom:10px">+ Tambah Petugas</button>
+      <table><thead><tr><th>NIP / Kode</th><th>Nama</th><th>Pasar</th><th>Status</th></tr></thead><tbody><tr><td>PTG001</td><td>Ahmad</td><td>Pasar Panorama</td><td><span class="tag ok">Aktif</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="laporan" class="section">
+    <div class="panel"><h2>Rekap & Laporan</h2>
+      <div class="tabs"><button class="on">Rekap Bulanan</button><button>Per Pasar</button><button>Nomor Seri</button><button>Setoran</button><button>Tunggakan</button></div>
+      <div class="row" style="margin-bottom:12px"><div><label>Bulan</label><input type="month" value="2026-10"></div><div><label>Pasar</label><select><option>Semua</option></select></div><div><button class="btn secondary">Export Excel</button> <button class="btn secondary">Cetak PDF</button></div></div>
+      <table><thead><tr><th>Pasar</th><th class="num">Penerimaan</th><th class="num">Setoran</th><th class="num">Outstanding</th><th class="num">Tunggakan</th></tr></thead>
+      <tbody><tr><td>Pasar Panorama</td><td class="num">Rp48.300.000</td><td class="num">Rp46.000.000</td><td class="num">Rp2.300.000</td><td class="num">Rp7.800.000</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="user-role" class="section">
+    <div class="panel"><h2>User & Role</h2>
+      <div class="okbox">Role minimum yang disarankan: Administrator, Bendahara, Operator, Viewer/Auditor.</div>
+      <table><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Pasar</th><th>Status</th></tr></thead><tbody><tr><td>admin.retribusi</td><td>Administrator Sistem</td><td>Administrator</td><td>Semua</td><td><span class="tag ok">Aktif</span></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="audit" class="section">
+    <div class="panel"><h2>Audit Log</h2>
+      <table><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Entity</th><th>Referensi</th><th>Detail</th></tr></thead>
+      <tbody><tr><td>07/10/2026 13:20</td><td>admin.retribusi</td><td>VOID</td><td>Penerimaan</td><td>TRX/2026/001201</td><td>Salah nomor seri</td></tr><tr><td>07/10/2026 09:01</td><td>operator.panorama</td><td>CREATE</td><td>Penerimaan</td><td>TRX/2026/001248</td><td>Serial 120501</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="periode" class="section">
+    <div class="panel"><h2>Closing Periode</h2>
+      <div class="notice">Periode yang sudah ditutup tidak dapat ditambah atau diubah kecuali dibuka kembali oleh user berwenang dengan alasan.</div>
+      <table><thead><tr><th>Periode</th><th>Status</th><th>Ditutup Oleh</th><th>Waktu</th><th></th></tr></thead><tbody><tr><td>September 2026</td><td><span class="tag bad">Closed</span></td><td>admin.retribusi</td><td>03/10/2026 17:10</td><td><button class="btn sm warn">Reopen</button></td></tr><tr><td>Oktober 2026</td><td><span class="tag ok">Open</span></td><td>-</td><td>-</td><td><button class="btn sm">Close Period</button></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <div class="footer-note">Prototype UI/UX untuk validasi requirement. Implementasi production disarankan menggunakan backend ASP.NET Core dan SQL Server, bukan penyimpanan browser.</div>
+</main>
+</div>
+
+<script>
+const titles={
+ dashboard:"Dashboard",tunggakan:"Tunggakan",penerimaan:"Penerimaan",setoran:"Setoran",
+ stok:"Penerimaan Stok",distribusi:"Distribusi Media",tracking:"Tracking Nomor Seri",
+ "master-pasar":"Master Pasar","master-objek":"Master Jenis Retribusi","master-tarif":"Master Tarif",
+ "master-unit":"Master Kios / Los / Pelataran","master-petugas":"Master Petugas",
+ laporan:"Rekap & Laporan","user-role":"User & Role",audit:"Audit Log",periode:"Closing Periode"
+};
+document.querySelectorAll(".nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(btn.dataset.page).classList.add("active");
+    document.getElementById("pageTitle").textContent=titles[btn.dataset.page]||btn.textContent;
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+function six(v){return String(v||"").replace(/\D/g,"").slice(0,6)}
+["recA","recB"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener("input",()=>{
+    el.value=six(el.value);
+    const a=document.getElementById("recA").value,b=document.getElementById("recB").value;
+    const box=document.getElementById("serialValidation");
+    if(a.length!==6 || b.length!==6){
+      box.className="notice";box.innerHTML="<b>Validasi:</b> nomor seri harus 6 digit.";
+    }else if(+b<+a){
+      box.className="notice";box.innerHTML="<b>Validasi:</b> seri akhir tidak boleh lebih kecil dari seri awal.";
+    }else{
+      box.className="okbox";box.innerHTML="<b>Validasi:</b> range "+a+"–"+b+" tersedia, dialokasikan ke Pasar Panorama, dan belum pernah digunakan.";
+    }
+  });
+});
+document.getElementById("trackBtn").addEventListener("click",()=>{
+  const s=six(document.getElementById("trackSerial").value)||"120501";
+  document.getElementById("trackResult").innerHTML=
+  '<div class="serialbox"><b>'+s+'</b> · STRD · <span class="tag ok">USED</span></div>'+
+  '<div class="timeline" style="margin-top:12px">'+
+  '<div><b>01/10/2026</b> · Diterima dari Dinas · Batch STK/2026/001</div>'+
+  '<div><b>03/10/2026</b> · Didistribusikan ke Pasar Panorama · BA/2026/00112</div>'+
+  '<div><b>07/10/2026</b> · Digunakan untuk penerimaan TRX/2026/001248 · Rp25.000</div>'+
+  '<div><b>Belum disetor</b> · Menunggu masuk ke setoran</div></div>';
+});
+</script>
+</body>
+</html>

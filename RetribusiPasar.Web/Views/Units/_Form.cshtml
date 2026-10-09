@@ -1,0 +1,12 @@
+@model RetributionUnit
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="MarketId"></label><select asp-for="MarketId" asp-items="ViewBag.Markets"><option value="">-- pilih --</option></select></div>
+<div><label asp-for="Code"></label><input asp-for="Code"/></div>
+<div><label asp-for="RetributionTypeId"></label><select asp-for="RetributionTypeId" asp-items="ViewBag.Types"><option value="">-- pilih --</option></select></div>
+<div><label asp-for="PayerName"></label><input asp-for="PayerName"/></div>
+<div><label asp-for="CollectorId"></label><select asp-for="CollectorId" asp-items="ViewBag.Collectors"><option value="">-- tanpa petugas --</option></select></div>
+<div><label asp-for="Status"></label><select asp-for="Status"><option>Berfungsi</option><option>Tidak Berfungsi/Tutup</option></select></div>
+<div><label asp-for="EffectiveFrom"></label><input asp-for="EffectiveFrom" type="date"/></div>
+<div><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+</div>

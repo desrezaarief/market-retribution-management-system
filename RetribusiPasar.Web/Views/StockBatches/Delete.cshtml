@@ -1,0 +1,2 @@
+@model StockBatch
+@{ViewData["Title"]="Hapus Stok";}<div class="panel"><h2>Hapus stok @Model.MediaType @Model.StartSerial.ToString("000000")-@Model.EndSerial.ToString("000000")?</h2><p class="muted">Pada production sebaiknya penghapusan dibatasi jika range sudah didistribusikan/digunakan.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><input asp-for="Id" type="hidden"/><button class="btn danger">Hapus</button> <a class="btn secondary js-modal-close" asp-action="Index">Batal</a></form></div>

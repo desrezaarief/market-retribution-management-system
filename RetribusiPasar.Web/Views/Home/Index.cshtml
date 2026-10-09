@@ -1,0 +1,169 @@
+@using System.Text.Json
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var labels = Model.Markets.Select(x => x.MarketName).ToList();
+    var receipts = Model.Markets.Select(x => x.Receipt).ToList();
+    var deposits = Model.Markets.Select(x => x.Deposit).ToList();
+    var outstandings = Model.Markets.Select(x => x.Outstanding).ToList();
+}
+<div class="panel">
+    <div class="toolbar">
+        <div>
+            <h2>Filter Dashboard</h2>
+            <div class="muted">Pantau penerimaan, setoran, outstanding, dan distribusi nominal per pasar.</div>
+        </div>
+        <form method="get" class="row">
+            <div><label>Periode</label><input type="month" name="period" value="@ViewBag.Period" /></div>
+            <div><button class="btn secondary">Terapkan</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="kpi">
+    <div class="card"><small>Total Penerimaan</small><strong>@FormatHelper.Rupiah(Model.TotalReceipt)</strong><div class="trend"><span class="tag neutral">Kas masuk</span><span>Total terakumulasi periode</span></div></div>
+    <div class="card"><small>Sudah Disetor</small><strong>@FormatHelper.Rupiah(Model.TotalDeposited)</strong><div class="trend"><span class="tag ok">Tersetor</span><span>Sudah masuk setoran bendahara</span></div></div>
+    <div class="card"><small>Belum Disetor</small><strong>@FormatHelper.Rupiah(Model.OutstandingDeposit)</strong><div class="trend"><span class="tag warn">Outstanding</span><span>Perlu ditindaklanjuti</span></div></div>
+    <div class="card"><small>Media Terpakai</small><strong>@FormatHelper.Number(Model.UsedMedia)</strong><div class="trend"><span class="tag neutral">Serial</span><span>Total lembar digunakan</span></div></div>
+    <div class="card"><small>Nilai Tunggakan</small><strong>@FormatHelper.Rupiah(Model.TotalArrears)</strong><div class="trend"><span class="tag bad">Tunggakan</span><span>Perlu monitoring lapangan</span></div></div>
+</div>
+
+<div class="three">
+    <div class="panel chart-card">
+        <div class="chart-title"><h2>Komposisi Kas</h2></div>
+        <div class="chart-wrap short"><canvas id="cashCompositionChart"></canvas></div>
+    </div>
+
+    <div class="panel chart-card">
+        <div class="chart-title"><h2>Distribusi Penerimaan per Pasar</h2></div>
+        <div class="chart-wrap short"><canvas id="receiptByMarketChart"></canvas></div>
+    </div>
+
+    <div class="panel chart-card">
+        <div class="chart-title"><h2>Ringkasan Cepat</h2></div>
+        <div class="metric-list">
+            <div class="metric-item"><span class="muted">Jumlah pasar aktif pada dashboard</span><b>@Model.Markets.Count</b></div>
+            <div class="metric-item"><span class="muted">Pasar penerimaan tertinggi</span><b>@(Model.Markets.OrderByDescending(x => x.Receipt).FirstOrDefault()?.MarketName ?? "-")</b></div>
+            <div class="metric-item"><span class="muted">Pasar outstanding tertinggi</span><b>@(Model.Markets.OrderByDescending(x => x.Outstanding).FirstOrDefault()?.MarketName ?? "-")</b></div>
+            <div class="metric-item"><span class="muted">Rasio setoran terhadap penerimaan</span><b>@(Model.TotalReceipt > 0 ? ((Model.TotalDeposited / Model.TotalReceipt) * 100).ToString("N1") : "0")%</b></div>
+            <div class="metric-item"><span class="muted">Akses lanjutan</span><a class="btn sm secondary" asp-controller="Reports" asp-action="Index">Buka laporan</a></div>
+        </div>
+    </div>
+</div>
+
+<div class="two">
+    <div class="panel chart-card">
+        <div class="chart-title"><h2>Perbandingan Penerimaan vs Setoran</h2></div>
+        <div class="chart-wrap"><canvas id="marketComparisonChart"></canvas></div>
+    </div>
+
+    <div class="panel">
+        <div class="chart-title"><h2>Rekap per Pasar</h2></div>
+        <div class="tablewrap"><table>
+            <thead><tr><th>Pasar</th><th class="num">Penerimaan</th><th class="num">Setoran</th><th class="num">Outstanding</th></tr></thead>
+            <tbody>
+            @foreach(var r in Model.Markets)
+            {
+                <tr>
+                    <td>@r.MarketName</td>
+                    <td class="num">@FormatHelper.Rupiah(r.Receipt)</td>
+                    <td class="num">@FormatHelper.Rupiah(r.Deposit)</td>
+                    <td class="num">@FormatHelper.Rupiah(r.Outstanding)</td>
+                </tr>
+            }
+            </tbody>
+        </table></div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const labels = @Html.Raw(JsonSerializer.Serialize(labels));
+    const receipts = @Html.Raw(JsonSerializer.Serialize(receipts));
+    const deposits = @Html.Raw(JsonSerializer.Serialize(deposits));
+    const outstandings = @Html.Raw(JsonSerializer.Serialize(outstandings));
+    const paletteA = ['#5563ff','#8b5cf6','#06b6d4'];
+    const paletteB = ['#5563ff','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6'];
+    const paletteC = ['#334155','#60a5fa','#818cf8'];
+
+    const currency = value => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
+    const isDark = () => document.documentElement.dataset.theme === 'dark';
+    const chartTheme = () => ({
+        text: isDark() ? '#cbd5e1' : '#64748b',
+        grid: isDark() ? 'rgba(148,163,184,.12)' : 'rgba(148,163,184,.16)'
+    });
+    const commonLegend = { position: 'bottom', labels: { color: chartTheme().text, usePointStyle: true, boxWidth: 10, padding: 16, font: { family: 'Inter' } } };
+    const dashboardCharts = [];
+
+    dashboardCharts.push(new Chart(document.getElementById('cashCompositionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Sudah Disetor','Belum Disetor','Tunggakan'],
+            datasets: [{ data: [@Model.TotalDeposited, @Model.OutstandingDeposit, @Model.TotalArrears], backgroundColor: paletteA, borderWidth: 0, hoverOffset: 8 }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: commonLegend,
+                tooltip: { callbacks: { label: ctx => `${ctx.label}: ${currency(ctx.raw)}` } }
+            }
+        }
+    }));
+
+    dashboardCharts.push(new Chart(document.getElementById('receiptByMarketChart'), {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{ data: receipts, backgroundColor: paletteB, borderWidth: 0, hoverOffset: 8 }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: commonLegend,
+                tooltip: { callbacks: { label: ctx => `${ctx.label}: ${currency(ctx.raw)}` } }
+            }
+        }
+    }));
+
+    dashboardCharts.push(new Chart(document.getElementById('marketComparisonChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'Penerimaan', data: receipts, backgroundColor: paletteC[1], borderRadius: 10, maxBarThickness: 36 },
+                { label: 'Setoran', data: deposits, backgroundColor: paletteC[2], borderRadius: 10, maxBarThickness: 36 },
+                { label: 'Outstanding', data: outstandings, backgroundColor: '#f59e0b', borderRadius: 10, maxBarThickness: 36 }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: commonLegend,
+                tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${currency(ctx.raw)}` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: chartTheme().text, font: { family: 'Inter' } } },
+                y: { beginAtZero: true, grid: { color: chartTheme().grid }, ticks: { color: chartTheme().text, callback: value => currency(value) } }
+            }
+        }
+    }));
+
+    const applyChartTheme = () => {
+        const th = chartTheme();
+        dashboardCharts.forEach(chart => {
+            if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = th.text;
+            if (chart.options.scales?.x?.ticks) chart.options.scales.x.ticks.color = th.text;
+            if (chart.options.scales?.y?.ticks) chart.options.scales.y.ticks.color = th.text;
+            if (chart.options.scales?.y?.grid) chart.options.scales.y.grid.color = th.grid;
+            chart.update();
+        });
+    };
+
+    applyChartTheme();
+    window.addEventListener('rp-theme-change', applyChartTheme);
+})();
+</script>
+}

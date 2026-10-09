@@ -1,0 +1,6 @@
+@model ReportViewModel
+@{ViewData["Title"]="Rekap & Laporan";}
+<div class="panel"><form method="get" class="row"><div><label>Periode</label><input type="month" name="period" value="@Model.Period"/></div><div><label>Pasar</label><select name="marketId" asp-items="ViewBag.Markets"><option value="">Semua Pasar</option></select></div><div><button class="btn secondary">Tampilkan</button></div></form></div>
+<div class="kpi" style="grid-template-columns:repeat(3,1fr)"><div class="card"><small>Penerimaan</small><strong>@FormatHelper.Rupiah(Model.TotalReceipt)</strong></div><div class="card"><small>Setoran</small><strong>@FormatHelper.Rupiah(Model.TotalDeposit)</strong></div><div class="card"><small>Outstanding</small><strong>@FormatHelper.Rupiah(Model.TotalOutstanding)</strong></div></div>
+<div class="panel"><h2>Rekap Per Pasar</h2><table><thead><tr><th>Pasar</th><th class="num">Penerimaan</th><th class="num">Setoran</th><th class="num">Outstanding</th></tr></thead><tbody>
+@foreach(var x in Model.Rows){<tr><td>@x.MarketName</td><td class="num">@FormatHelper.Rupiah(x.Receipt)</td><td class="num">@FormatHelper.Rupiah(x.Deposit)</td><td class="num">@FormatHelper.Rupiah(x.Outstanding)</td></tr>}</tbody></table></div>

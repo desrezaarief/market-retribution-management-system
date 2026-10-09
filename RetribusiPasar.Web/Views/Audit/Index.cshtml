@@ -1,0 +1,4 @@
+@model IEnumerable<AuditLog>
+@{ViewData["Title"]="Audit Log";}
+<div class="panel"><h2>Aktivitas Sistem</h2><div class="tablewrap"><table><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Entity</th><th>ID</th><th>Detail</th></tr></thead><tbody>
+@foreach(var x in Model){<tr><td>@x.Timestamp.ToString("dd/MM/yyyy HH:mm:ss")</td><td>@x.UserName</td><td><span class="tag">@x.Action</span></td><td>@x.EntityName</td><td>@x.EntityId</td><td>@x.Description</td></tr>}</tbody></table></div></div>

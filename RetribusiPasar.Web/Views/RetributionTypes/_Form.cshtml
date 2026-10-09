@@ -1,0 +1,9 @@
+@model RetributionType
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="Code"></label><input asp-for="Code"/><span asp-validation-for="Code"></span></div>
+<div><label asp-for="Name"></label><input asp-for="Name"/><span asp-validation-for="Name"></span></div>
+<div><label asp-for="MediaType"></label><select asp-for="MediaType"><option>STRD</option><option>Karcis</option><option>Tanpa Media</option></select></div>
+<div><label asp-for="BillingCycle"></label><select asp-for="BillingCycle"><option>Bulanan</option><option>PerTransaksi</option></select></div>
+<div class="full"><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+</div>

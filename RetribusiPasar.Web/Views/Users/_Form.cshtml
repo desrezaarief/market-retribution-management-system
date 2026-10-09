@@ -1,0 +1,10 @@
+@model AppUser
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="Username"></label><input asp-for="Username"/></div>
+<div><label asp-for="DisplayName"></label><input asp-for="DisplayName"/></div>
+<div><label asp-for="Role"></label><select asp-for="Role"><option>Administrator</option><option>Bendahara</option><option>Operator</option><option>Viewer</option><option>Auditor</option></select></div>
+<div><label asp-for="MarketId"></label><select asp-for="MarketId" asp-items="ViewBag.Markets"><option value="">Semua Pasar</option></select></div>
+<div><label asp-for="NewPassword"></label><input asp-for="NewPassword" autocomplete="new-password"/><small class="muted">Wajib saat user baru; kosongkan saat edit jika tidak mengubah password.</small></div>
+<div><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+</div>

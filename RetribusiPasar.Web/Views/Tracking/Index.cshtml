@@ -1,0 +1,7 @@
+@model TrackingViewModel
+@{ViewData["Title"]="Tracking Nomor Seri";}
+<div class="panel"><form method="get" class="row"><div><label>Nomor Seri 6 Digit</label><input name="serial" value="@Model.Serial" maxlength="6"/></div><div><button class="btn">Cari</button></div></form></div>
+@if(!string.IsNullOrWhiteSpace(Model.Error)){<div class="alert bad">@Model.Error</div>}
+@if(Model.Serial.HasValue && string.IsNullOrWhiteSpace(Model.Error)){
+<div class="panel"><h2><span class="serial">@Model.Serial.Value.ToString("000000")</span> · @Model.MediaType · <span class="tag ok">@Model.Status</span></h2>
+<div class="timeline">@foreach(var e in Model.Events.OrderBy(x=>x.Date)){<div><b>@e.Date.ToString("dd/MM/yyyy") · @e.Title</b><br/><span class="muted">@e.Detail</span></div>}</div></div>}

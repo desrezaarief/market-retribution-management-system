@@ -1,0 +1,127 @@
+@{
+    var c = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string A(params string[] controllers) => controllers.Contains(c, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Sistem Retribusi Pasar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (() => {
+            const saved = localStorage.getItem('rp-theme');
+            const preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = saved || (preferredDark ? 'dark' : 'light');
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="app-shell">
+    <aside class="side">
+        <div class="brand">
+            <div class="brand-mark">RP</div>
+            <div>
+                <b>Sistem Retribusi Pasar</b>
+                <small>CMS, transaksi, monitoring & dashboard</small>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-title">Monitoring</div>
+            <a class="@(A("Home"))" asp-controller="Home" asp-action="Index">Dashboard</a>
+            <a class="@(A("Tracking"))" asp-controller="Tracking" asp-action="Index">Tracking Nomor Seri</a>
+            <a class="@(A("Arrears"))" asp-controller="Arrears" asp-action="Index">Tunggakan</a>
+
+            <div class="nav-title">Transaksi</div>
+            <a class="@(A("Receipts"))" asp-controller="Receipts" asp-action="Index">Penerimaan</a>
+            <a class="@(A("Deposits"))" asp-controller="Deposits" asp-action="Index">Setoran</a>
+
+            <div class="nav-title">Media / Karcis</div>
+            <a class="@(A("StockBatches"))" asp-controller="StockBatches" asp-action="Index">Penerimaan Stok</a>
+            <a class="@(A("Distributions"))" asp-controller="Distributions" asp-action="Index">Distribusi Media</a>
+
+            <div class="nav-title">Master Data</div>
+            <a class="@(A("Markets"))" asp-controller="Markets" asp-action="Index">Pasar</a>
+            <a class="@(A("RetributionTypes"))" asp-controller="RetributionTypes" asp-action="Index">Jenis Retribusi</a>
+            <a class="@(A("Tariffs"))" asp-controller="Tariffs" asp-action="Index">Tarif</a>
+            <a class="@(A("Units"))" asp-controller="Units" asp-action="Index">Kios / Los / Unit</a>
+            <a class="@(A("Collectors"))" asp-controller="Collectors" asp-action="Index">Petugas</a>
+
+            <div class="nav-title">Laporan</div>
+            <a class="@(A("Reports"))" asp-controller="Reports" asp-action="Index">Rekap & Laporan</a>
+
+            <div class="nav-title">Sistem</div>
+            <a class="@(A("Users"))" asp-controller="Users" asp-action="Index">User & Role</a>
+            <a class="@(A("Audit"))" asp-controller="Audit" asp-action="Index">Audit Log</a>
+            <a class="@(A("AccountingPeriods"))" asp-controller="AccountingPeriods" asp-action="Index">Closing Periode</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <div class="page-kicker">Buku Kas Bendahara Penerimaan</div>
+                <h1>@ViewData["Title"]</h1>
+                <div class="sub">Retribusi Pelayanan Pasar · modern UI prototype</div>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="header-icon-btn" id="themeToggle" title="Ganti mode gelap/terang" aria-label="Ganti mode gelap/terang">
+                    <svg class="header-icon theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
+                    <svg class="header-icon theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+
+                <div class="header-icon-btn user-indicator" title="@User.Identity?.Name · @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value" aria-label="User login: @User.Identity?.Name">
+                    <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+
+                <form asp-controller="Auth" asp-action="Logout" method="post" class="inline-form header-logout-form">
+                    <button type="submit" class="header-icon-btn" title="Logout" aria-label="Logout">
+                        <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M14 3h4a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-4"></path></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null) { <div class="alert ok">@TempData["Success"]</div> }
+        @if (TempData["Error"] != null) { <div class="alert bad">@TempData["Error"]</div> }
+
+        @RenderBody()
+    </main>
+</div>
+
+<div id="globalLoadingOverlay" class="loading-overlay" hidden>
+    <div class="loading-card">
+        <div class="spinner"></div>
+        <div>
+            <b id="globalLoadingTitle">Memproses...</b>
+            <small id="globalLoadingText">Mohon tunggu sebentar.</small>
+        </div>
+    </div>
+</div>
+
+<div id="appModal" class="modal-overlay" hidden>
+    <div class="modal-card">
+        <div class="modal-head">
+            <div>
+                <div class="page-kicker">Quick Form</div>
+                <h3 id="appModalTitle">Form</h3>
+            </div>
+            <button type="button" class="icon-btn" id="appModalClose" aria-label="Close">✕</button>
+        </div>
+        <div id="appModalBody" class="modal-body"></div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

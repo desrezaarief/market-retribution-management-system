@@ -1,0 +1,11 @@
+@model Receipt
+@{ViewData["Title"]="Hapus Penerimaan";}
+<div class="panel">
+    <h2>Hapus @Model.TransactionNo?</h2>
+    <p class="muted">Data tetap disimpan sebagai histori/audit, tetapi transaksi tidak lagi dihitung sebagai penerimaan aktif dan nomor seri dapat digunakan kembali.</p>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <input asp-for="Id" type="hidden"/>
+        <div><label>Alasan Hapus</label><textarea name="deleteReason" rows="3" required placeholder="Tuliskan alasan penghapusan transaksi"></textarea></div>
+        <div class="form-actions"><button class="btn danger"><svg class="crud-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg> Hapus</button><a class="btn secondary js-modal-close" asp-action="Index">Batal</a></div>
+    </form>
+</div>

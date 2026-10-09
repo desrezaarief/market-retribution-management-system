@@ -1,0 +1,20 @@
+@model DepositEditViewModel
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Deposit.Id" type="hidden"/><input asp-for="Deposit.Status" type="hidden"/>
+<div class="grid">
+<div><label asp-for="Deposit.DepositNo"></label><input asp-for="Deposit.DepositNo"/></div>
+<div><label asp-for="Deposit.DepositDate"></label><input asp-for="Deposit.DepositDate" type="date"/></div>
+<div><label asp-for="Deposit.MarketId"></label><select asp-for="Deposit.MarketId" asp-items="Model.Markets"><option value="">-- pilih --</option></select></div>
+<div><label asp-for="Deposit.BankName"></label><input asp-for="Deposit.BankName"/></div>
+<div><label asp-for="Deposit.ReferenceNo"></label><input asp-for="Deposit.ReferenceNo"/></div>
+<div><label>Total terpilih</label><div id="depositCalculatedTotal" class="card" style="padding:9px">Rp0</div></div>
+<div class="full"><label>Pilih transaksi penerimaan yang disetor</label><div class="check-list">
+@foreach(var r in Model.ReceiptChoices){
+  <label class="check-item">
+  @if(r.Selected){<input class="deposit-receipt" type="checkbox" name="SelectedReceiptIds" value="@r.Id" data-amount="@r.Amount" checked />}
+  else{<input class="deposit-receipt" type="checkbox" name="SelectedReceiptIds" value="@r.Id" data-amount="@r.Amount" />}
+  <span><b>@r.TransactionNo</b> · @r.ReceiptDate.ToString("dd/MM/yyyy") · @FormatHelper.Rupiah(r.Amount)</span></label>
+}
+@if(!Model.ReceiptChoices.Any()){<div class="muted">Tidak ada penerimaan yang tersedia untuk disetor.</div>}
+</div></div>
+<div class="full"><label asp-for="Deposit.Notes"></label><textarea asp-for="Deposit.Notes" rows="3"></textarea></div>
+</div>

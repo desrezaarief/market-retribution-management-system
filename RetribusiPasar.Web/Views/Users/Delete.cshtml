@@ -1,0 +1,2 @@
+@model AppUser
+@{ViewData["Title"]="Hapus User";}<div class="panel"><h2>Hapus @Model.Username?</h2><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><input asp-for="Id" type="hidden"/><button class="btn danger">Hapus</button> <a class="btn secondary js-modal-close" asp-action="Index">Batal</a></form></div>

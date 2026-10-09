@@ -1,0 +1,2 @@
+@model AppUser
+@{ViewData["Title"]="Ubah User";}<div class="panel"><form asp-action="Edit" asp-route-id="@Model.Id" method="post">@await Html.PartialAsync("_Form",Model)<div class="form-actions"><button class="btn">Simpan</button><a class="btn secondary js-modal-close" asp-action="Index">Batal</a></div></form></div>

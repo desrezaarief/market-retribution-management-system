@@ -1,0 +1,8 @@
+@model IEnumerable<AccountingPeriod>
+@{ViewData["Title"]="Closing Periode";}
+<div class="panel"><h2>Tambah Periode</h2><form asp-action="Create" method="post" class="row"><div><label>Periode</label><input type="month" name="period" value="@DateTime.Today.ToString("yyyy-MM")"/></div><div><button class="btn">Tambah</button></div></form></div>
+<div class="panel"><h2>Status Periode</h2><table><thead><tr><th>Periode</th><th>Status</th><th>Ditutup Oleh</th><th>Waktu</th><th>Aksi</th></tr></thead><tbody>
+@foreach(var x in Model){<tr><td>@x.Period</td><td><span class="tag @(x.Status=="OPEN"?"ok":"bad")">@x.Status</span></td><td>@x.ClosedBy</td><td>@(x.ClosedAt?.ToString("dd/MM/yyyy HH:mm")??"-")</td><td>
+@if(x.Status=="OPEN"){<form asp-action="Close" method="post"><input type="hidden" name="id" value="@x.Id"/><button class="btn sm danger" data-confirm="Tutup periode @x.Period?">Close</button></form>}
+else{<form asp-action="Reopen" method="post" class="row"><input type="hidden" name="id" value="@x.Id"/><div><input name="reason" placeholder="Alasan reopen"/></div><div><button class="btn sm warn">Reopen</button></div></form>}
+</td></tr>}</tbody></table></div>

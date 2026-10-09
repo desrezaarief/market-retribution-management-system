@@ -1,0 +1,10 @@
+@model Market
+<div asp-validation-summary="ModelOnly"></div>
+<input asp-for="Id" type="hidden" />
+<div class="grid">
+    <div><label asp-for="Code"></label><input asp-for="Code" /><span asp-validation-for="Code"></span></div>
+    <div><label asp-for="Name"></label><input asp-for="Name" /><span asp-validation-for="Name"></span></div>
+    <div><label asp-for="Type"></label><select asp-for="Type"><option>Pasar</option><option>Ruko</option><option>Lainnya</option></select></div>
+    <div class="full"><label asp-for="Address"></label><input asp-for="Address" /></div>
+    <div class="full"><label><input asp-for="IsActive" style="width:auto" /> Aktif</label></div>
+</div>

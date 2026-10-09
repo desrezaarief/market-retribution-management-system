@@ -1,0 +1,11 @@
+@model StockBatch
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="MediaType"></label><select asp-for="MediaType"><option>STRD</option><option>Karcis</option></select></div>
+<div><label asp-for="ReceivedDate"></label><input asp-for="ReceivedDate" type="date"/></div>
+<div><label asp-for="StartSerial"></label><input asp-for="StartSerial" maxlength="6" inputmode="numeric" data-digits-only/></div>
+<div><label asp-for="EndSerial"></label><input asp-for="EndSerial" maxlength="6" inputmode="numeric" data-digits-only/></div>
+<div><label asp-for="DocumentNo"></label><input asp-for="DocumentNo"/></div>
+<div><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+<div class="full"><label asp-for="Notes"></label><textarea asp-for="Notes" rows="3"></textarea></div>
+</div>

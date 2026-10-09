@@ -1,0 +1,3 @@
+@model Collector
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid"><div><label asp-for="Code"></label><input asp-for="Code"/></div><div><label asp-for="Name"></label><input asp-for="Name"/></div><div><label asp-for="MarketId"></label><select asp-for="MarketId" asp-items="ViewBag.Markets"><option value="">-- pilih --</option></select></div><div><label asp-for="Phone"></label><input asp-for="Phone" inputmode="numeric" data-digits-only/></div><div class="full"><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div></div>

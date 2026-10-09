@@ -1,0 +1,7 @@
+@model ArrearsViewModel
+@{ViewData["Title"]="Tunggakan";}
+<div class="panel"><form method="get" class="row"><div><label>Dihitung sampai</label><input type="month" name="period" value="@Model.Period"/></div><div><label>Pasar</label><select name="marketId" asp-items="ViewBag.Markets"><option value="">Semua Pasar</option></select></div><div><button class="btn secondary">Tampilkan</button></div></form></div>
+<div class="kpi" style="grid-template-columns:repeat(3,1fr)"><div class="card"><small>Unit Menunggak</small><strong>@Model.TotalUnits</strong></div><div class="card"><small>Bulan Tunggak</small><strong>@Model.TotalMonths</strong></div><div class="card"><small>Nilai Tunggakan</small><strong>@FormatHelper.Rupiah(Model.TotalAmount)</strong></div></div>
+<div class="panel"><h2>Daftar Penunggak</h2><table><thead><tr><th>Pasar</th><th>Unit</th><th>Wajib Retribusi</th><th>Petugas</th><th class="num">Tarif</th><th class="num">Bulan</th><th class="num">Nilai</th></tr></thead><tbody>
+@foreach(var x in Model.Rows){<tr><td>@x.MarketName</td><td>@x.UnitCode</td><td>@x.PayerName</td><td>@x.CollectorName</td><td class="num">@FormatHelper.Rupiah(x.Tariff)</td><td class="num">@x.Months</td><td class="num">@FormatHelper.Rupiah(x.Amount)</td></tr>}
+</tbody></table></div>

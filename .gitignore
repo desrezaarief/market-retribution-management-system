@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+logs/
+*.log
+
+# Local / production configuration containing secrets
+appsettings.Development.json
+appsettings.Production.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Publish output
+publish/
+Publish/
+artifacts/
+
+# Rider / VS Code optional
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Internal static check reports
+STATIC_CHECK*.txt

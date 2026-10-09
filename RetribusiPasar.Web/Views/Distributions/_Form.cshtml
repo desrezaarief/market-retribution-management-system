@@ -1,0 +1,14 @@
+@model MediaDistribution
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="DistributionNo"></label><input asp-for="DistributionNo"/></div>
+<div><label asp-for="DistributionDate"></label><input asp-for="DistributionDate" type="date"/></div>
+<div><label asp-for="MarketId"></label><select asp-for="MarketId" asp-items="ViewBag.Markets"><option value="">-- pilih --</option></select></div>
+<div><label asp-for="MediaType"></label><select asp-for="MediaType"><option>STRD</option><option>Karcis</option></select></div>
+<div><label asp-for="StartSerial"></label><input asp-for="StartSerial" maxlength="6" inputmode="numeric" data-digits-only/></div>
+<div><label asp-for="EndSerial"></label><input asp-for="EndSerial" maxlength="6" inputmode="numeric" data-digits-only/></div>
+<div><label asp-for="ReceiverName"></label><input asp-for="ReceiverName"/></div>
+<div><label asp-for="RequestLetterNo"></label><input asp-for="RequestLetterNo"/></div>
+<div class="full"><label asp-for="Notes"></label><textarea asp-for="Notes" rows="3"></textarea></div>
+<div class="full"><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+</div>

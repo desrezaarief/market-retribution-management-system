@@ -1,0 +1,2 @@
+@model Deposit
+@{ViewData["Title"]="Hapus Setoran";}<div class="panel"><h2>Hapus @Model.DepositNo?</h2><p>Penerimaan yang terkait akan kembali tersedia untuk setoran berikutnya.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><input asp-for="Id" type="hidden"/><button class="btn danger">Hapus</button> <a class="btn secondary js-modal-close" asp-action="Index">Batal</a></form></div>

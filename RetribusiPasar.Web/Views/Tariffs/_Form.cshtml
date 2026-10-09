@@ -1,0 +1,10 @@
+@model Tariff
+<div asp-validation-summary="ModelOnly"></div><input asp-for="Id" type="hidden"/>
+<div class="grid">
+<div><label asp-for="MarketId"></label><select asp-for="MarketId" asp-items="ViewBag.Markets"><option value="">-- pilih --</option></select><span asp-validation-for="MarketId"></span></div>
+<div><label asp-for="RetributionTypeId"></label><select asp-for="RetributionTypeId" asp-items="ViewBag.Types"><option value="">-- pilih --</option></select><span asp-validation-for="RetributionTypeId"></span></div>
+<div><label asp-for="Amount"></label><input asp-for="Amount" type="text" inputmode="numeric" data-number-format value="@Model.Amount.ToString("0")"/><span asp-validation-for="Amount"></span></div>
+<div><label asp-for="EffectiveFrom"></label><input asp-for="EffectiveFrom" type="date"/></div>
+<div><label asp-for="EffectiveTo"></label><input asp-for="EffectiveTo" type="date"/></div>
+<div><label><input asp-for="IsActive" style="width:auto"/> Aktif</label></div>
+</div>
