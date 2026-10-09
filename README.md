@@ -1,318 +1,338 @@
-# Sistem Retribusi Pasar
+# Market Retribution Management System
 
-Prototype aplikasi **ASP.NET Core MVC (.NET 8)** berdasarkan mockup Buku Kas Bendahara Penerimaan / Retribusi Pelayanan Pasar.
+A web-based information system for managing **market service retribution** operations, covering media stock, serial number distribution, receipts, deposits, arrears, reporting, and administrative monitoring.
 
-## Stack
+This project was built as a portfolio project using **ASP.NET Core MVC (.NET 8)**, **Entity Framework Core**, and **SQL Server**, with business rules designed around a real-world retribution workflow.
 
-- ASP.NET Core MVC / Razor Views
-- C#
-- CSS + vanilla JavaScript ringan
-- Repository abstraction
-- Storage sementara: **InMemory**
-- Target database: **SQL Server**
-- Cookie Authentication + role claim
-- `PasswordHasher<T>` untuk password demo
-- Audit trail dasar
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-MVC-512BD4?logo=dotnet)](https://learn.microsoft.com/aspnet/core/)
+[![EF Core](https://img.shields.io/badge/Entity%20Framework-Core-512BD4)](https://learn.microsoft.com/ef/core/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-Database-CC2927?logo=microsoftsqlserver)](https://www.microsoft.com/sql-server)
 
-## Login demo
+## Live Demo
 
-- Username: `admin.retribusi`
-- Password: `demo123`
+**Staging:** http://retribusipasar-staging.runasp.net/
 
-User lain:
-- `operator.panorama`
-- Password: `demo123`
+> The staging environment is intended for demonstration and testing only. It is currently hosted on a free hosting plan, so availability may vary.
 
-> Ganti seluruh credential demo sebelum dipakai di environment nyata.
+## Overview
 
-## Modul
+The application digitizes a workflow that was previously handled through manual records and physical retribution media such as **STRD** and **Karcis**.
 
-1. Dashboard
-2. Penerimaan
-3. Setoran
-4. Penerimaan stok STRD/Karcis
-5. Distribusi media ke pasar
-6. Tracking nomor seri
-7. Tunggakan
-8. Master Pasar
-9. Master Jenis Retribusi
-10. Master Tarif & histori tarif
-11. Master Kios/Los/Unit
-12. Master Petugas
-13. Rekap & Laporan
-14. User & Role
-15. Audit Log
-16. Closing Periode
+The core process is:
 
-## Business rule yang sudah diterapkan
+```text
+Media Stock
+    ↓
+Distribution to Market
+    ↓
+Retribution Collection / Receipt
+    ↓
+Deposit
+    ↓
+Monitoring & Reporting
+```
 
-- Nomor seri menggunakan **range 6 digit**.
-- Range stok tidak boleh overlap pada media yang sama.
-- Distribusi hanya boleh memakai range yang ada di stok.
-- Range distribusi tidak boleh overlap dengan distribusi aktif lain.
-- Penerimaan dengan media wajib memakai serial yang sudah didistribusikan ke **pasar yang sama**.
-- Serial tidak boleh digunakan dua kali pada penerimaan aktif.
-- Nominal seharusnya dihitung server dari master tarif.
-- Transaksi pada periode CLOSED ditolak.
-- Penerimaan tidak di-hard-delete; Delete pada UI melakukan **VOID**.
-- Satu receipt hanya boleh masuk ke satu setoran.
-- Setoran menghitung nilai dari receipt yang dipilih.
-- Tunggakan dihitung dari bulan aktif unit yang belum memiliki alokasi pembayaran.
-- CRUD mencatat AuditLog.
+Each physical media item is tracked using a **6-digit serial number range**, allowing the system to validate stock allocation, distribution, usage, and duplicate serial usage.
 
-## Menjalankan project
+## Main Features
 
-Requirement:
+- Dashboard monitoring with charts and summary metrics
+- Receipt / collection transaction management
+- Deposit transaction management
+- STRD and ticket stock management
+- Media distribution to each market
+- Serial number tracking
+- Arrears monitoring
+- Market master data
+- Retribution type master data
+- Tariff and tariff history management
+- Kiosk / stall / unit management
+- Collector / officer management
+- Reporting and recapitulation
+- User and role management
+- Audit trail
+- Accounting period closing
+- Cookie-based authentication
+- Dark / light mode
+- Responsive modern UI
+- Select2-enhanced dropdowns
+- Modal-based create and edit forms
+- Numeric input formatting
 
-- Visual Studio 2022 terbaru atau VS Code
+## Key Business Rules
+
+The project contains business validation beyond standard CRUD operations.
+
+### Media Stock & Distribution
+
+- Serial numbers use a **6-digit range**.
+- Stock ranges for the same media type cannot overlap.
+- A distribution must be fully covered by available stock.
+- Distribution ranges cannot overlap with another active distribution.
+- Serial numbers already used in an active receipt cannot be redistributed.
+
+### Receipt Transaction
+
+When a kiosk / stall / unit is selected, the application automatically determines:
+
+- Market
+- Retribution type
+- Collector
+- Media type
+- Active tariff
+
+The server remains the source of truth, so these values are validated again on the backend instead of relying only on JavaScript.
+
+Additional validation includes:
+
+- Media serials must have been distributed to the selected market.
+- Used serial numbers cannot be used twice.
+- Transactions cannot be created in a closed accounting period.
+- Expected amounts are calculated from the active tariff.
+- Per-transaction retribution can calculate amounts based on the number of serials used.
+- Deleted receipt transactions are preserved as historical records using a soft-delete status.
+
+### Deposit Transaction
+
+- One receipt can only be assigned to one deposit.
+- Deposit values are calculated from the selected receipt transactions.
+- Receipt-to-deposit relationships are stored through a junction table.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Razor Views] --> B[ASP.NET Core MVC Controllers]
+    B --> C[Business Services]
+    C --> D[Repository Abstraction]
+    D --> E[Entity Framework Core]
+    E --> F[(SQL Server)]
+```
+
+The repository abstraction keeps data access separated from controllers and business logic.
+
+```text
+Razor View
+    ↓
+Controller
+    ↓
+Business Service
+    ↓
+IRepository<T>
+    ↓
+EfRepository<T>
+    ↓
+Entity Framework Core
+    ↓
+SQL Server
+```
+
+Core domain rules are primarily handled in `RetributionBusinessService`, keeping important validation outside the browser.
+
+## Tech Stack
+
+| Area | Technology |
+|---|---|
+| Backend | C#, ASP.NET Core MVC (.NET 8) |
+| Frontend | Razor Views, HTML, CSS, JavaScript |
+| ORM | Entity Framework Core |
+| Database | SQL Server |
+| Authentication | ASP.NET Core Cookie Authentication |
+| UI Components | Select2 |
+| Charts | Chart.js |
+| Password Hashing | ASP.NET Core `PasswordHasher<T>` |
+| Hosting | ASP.NET Core / IIS compatible hosting |
+
+## Project Structure
+
+```text
+RetribusiPasar/
+│
+├── RetribusiPasar.sln
+├── README.md
+├── PUBLISH_STAGING.md
+│
+└── RetribusiPasar.Web/
+    ├── Controllers/
+    ├── Infrastructure/
+    │   ├── AppDbContext.cs
+    │   ├── DatabaseInitializer.cs
+    │   └── Repositories/
+    ├── Models/
+    │   ├── Entities/
+    │   └── ViewModels/
+    ├── Services/
+    ├── Views/
+    ├── wwwroot/
+    │   ├── css/
+    │   ├── js/
+    │   └── lib/
+    ├── Database/
+    │   └── 01_schema.sql
+    ├── Program.cs
+    └── appsettings.json
+```
+
+## Database Design
+
+Main tables include:
+
+```text
+MstMarket
+MstRetributionType
+MstTariff
+MstCollector
+MstRetributionUnit
+
+TrxStockBatch
+TrxMediaDistribution
+TrxReceipt
+TrxDeposit
+TrxDepositReceipt
+
+AppUser
+AccountingPeriod
+AuditLog
+```
+
+`TrxDepositReceipt` acts as the relationship table between deposits and receipt transactions.
+
+## Getting Started
+
+### Prerequisites
+
 - .NET 8 SDK
+- Visual Studio 2022 or later / VS Code
+- SQL Server or SQL Server LocalDB
 
-Via terminal:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/market-retribution-management-system.git
+cd market-retribution-management-system
+```
+
+### 2. Configure the database connection
+
+Do **not** store production credentials inside `appsettings.json`.
+
+For local development, use .NET User Secrets:
 
 ```bash
 cd RetribusiPasar.Web
+
+dotnet user-secrets init
+
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\\MSSQLLocalDB;Database=RetribusiPasarDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
+```
+
+Optional seed credentials can also be stored in User Secrets:
+
+```bash
+dotnet user-secrets set "Seed:AdminPassword" "YOUR_LOCAL_ADMIN_PASSWORD"
+dotnet user-secrets set "Seed:OperatorPassword" "YOUR_LOCAL_OPERATOR_PASSWORD"
+```
+
+### 3. Restore and run
+
+```bash
 dotnet restore
 dotnet run
 ```
 
-Atau buka `RetribusiPasar.sln` dari Visual Studio lalu Run.
+Then open the URL shown by ASP.NET Core in the terminal.
 
-> Data in-memory akan kembali ke seed setiap aplikasi restart.
+## Database Initialization
 
-## Struktur
+The application supports automatic database initialization for staging and development environments.
+
+```json
+"Database": {
+  "AutoCreate": true,
+  "SeedDemoData": true
+}
+```
+
+When enabled, the application can create the required schema and seed demo data when the database is empty.
+
+A manual SQL schema is also available at:
 
 ```text
-Controllers/
-Models/
-  Entities/
-  ViewModels/
-Infrastructure/
-  InMemoryDataStore.cs
-  Repositories/
-Services/
-Views/
-wwwroot/
-Database/
-  01_schema.sql
+RetribusiPasar.Web/Database/01_schema.sql
 ```
 
-### Kenapa Repository abstraction?
+## Production / Staging Configuration
 
-Controller tidak tahu apakah data berasal dari `List<T>`, SQL Server, atau sumber lain.
+Secrets should be supplied through environment variables or a secure secret store.
 
-Saat ini:
+Example environment variable names:
 
 ```text
-Controller
-   ↓
-IRepository<T>
-   ↓
-InMemoryRepository<T>
+ConnectionStrings__DefaultConnection
+Database__AutoCreate
+Database__SeedDemoData
+Seed__AdminPassword
+Seed__OperatorPassword
 ```
 
-Target:
+Never commit real database credentials, passwords, or production secrets to the repository.
 
-```text
-Controller
-   ↓
-IRepository<T>
-   ↓
-EfRepository<T>
-   ↓
-EF Core
-   ↓
-SQL Server
-```
+## UI / UX Highlights
 
-Business rule utama berada di `RetributionBusinessService`, bukan di browser.
+The application uses a modern dashboard-oriented interface with:
 
-## Migrasi ke SQL Server / EF Core
+- Responsive sidebar navigation
+- Persistent sidebar scroll position
+- Light / dark theme
+- Interactive charts
+- Modal CRUD forms
+- Global loading overlay
+- Select2 dropdowns
+- Formatted numeric input
+- Icon-based table actions
+- Automatic receipt form context based on the selected unit
 
-### 1. Tambahkan package
+## Audit & Security
 
-```bash
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.EntityFrameworkCore.Design
-```
+Current security-related features include:
 
-### 2. Buat `AppDbContext`
+- Cookie authentication
+- Role claims
+- Password hashing using `PasswordHasher<T>`
+- Anti-forgery validation on POST forms
+- Audit log for key CRUD operations
+- Closed-period transaction validation
+- Server-side validation for critical business rules
 
-Mapping tabel dapat mengikuti `Database/01_schema.sql`.
+For a production deployment, additional hardening such as login lockout, rate limiting, password reset, structured logging, database backup, and stronger authorization policies should be considered.
 
-### 3. Buat `EfRepository<T> : IRepository<T>`
+## Future Improvements
 
-Implementasikan:
+Potential next improvements include:
 
-- `GetAllAsync`
-- `GetByIdAsync`
-- `AddAsync`
-- `UpdateAsync`
-- `DeleteAsync`
+- Automated unit and integration testing
+- Excel / PDF report export
+- Attachment support for deposit evidence
+- More granular role-based authorization
+- Pagination and advanced filtering
+- Database migration strategy using EF Core Migrations
+- Concurrency handling for multi-user transactions
+- Structured logging and monitoring
+- Automated CI/CD deployment
 
-### 4. Ganti dependency injection
+## Purpose
 
-Dari:
+This repository is intended as a **portfolio and learning project** demonstrating the implementation of:
 
-```csharp
-builder.Services.AddSingleton<InMemoryDataStore>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(InMemoryRepository<>));
-```
+- ASP.NET Core MVC architecture
+- Real-world business rule validation
+- Repository pattern
+- Entity Framework Core data access
+- SQL Server relational modelling
+- Authentication and authorization
+- Transactional data processing
+- Responsive dashboard UI
+- Deployment-ready configuration management
 
-menjadi kurang lebih:
-
-```csharp
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-```
-
-Controller dan mayoritas service tidak perlu diubah.
-
-### 5. Khusus relasi Setoran-Penerimaan
-
-Pada versi in-memory, `Deposit.ReceiptIds` berupa list ID untuk mempermudah prototype.
-
-Di SQL Server gunakan tabel:
-
-```text
-TrxDeposit
-TrxDepositReceipt
-TrxReceipt
-```
-
-sebagaimana sudah disiapkan pada `01_schema.sql`.
-
-## Catatan sebelum production
-
-Yang masih perlu dikeraskan sebelum go-live:
-
-- Gunakan SQL Server, jangan InMemory.
-- CSRF sudah memakai antiforgery pada POST form; tetap aktifkan HTTPS.
-- Tambahkan lockout/rate limit login.
-- Tambahkan password policy dan reset password.
-- Master penting lebih baik soft-delete/nonaktif daripada hard delete.
-- Tambahkan referential-integrity guard pada Delete master.
-- Tambahkan attachment bukti transfer/setoran bila diperlukan.
-- Tambahkan backup database harian.
-- Tambahkan structured logging (Serilog atau provider lain).
-- Simpan secret/connection string di environment variable / secret store.
-- Tambahkan automated test untuk rule serial, tarif, closing period dan deposit.
-- Pertimbangkan row-version/concurrency token saat sudah multi-user.
-
-## Batas prototype
-
-Environment pembuatan file ini tidak memiliki runtime `.NET`, sehingga project tidak dapat dikompilasi langsung di environment generator. Struktur dan referensi sudah dicek secara statis, tetapi tetap jalankan `dotnet build` di mesin development sebelum mulai pengembangan lanjutan.
-
-
-## Revisi form Penerimaan
-
-Form Penerimaan sekarang mengikuti aturan berikut:
-
-- Jika **Unit/Kios/Los** dipilih, sistem otomatis mengambil dari master:
-  - Pasar
-  - Jenis Retribusi
-  - Petugas
-  - Media (STRD/Karcis/Tanpa Media)
-  - Tarif aktif
-- Field Pasar/Jenis/Petugas dikunci pada UI selama Unit dipilih.
-- Backend tetap meng-overwrite nilai tersebut dari Master Unit sehingga tidak hanya mengandalkan JavaScript.
-- Jika transaksi tidak memakai Unit (contoh Pelataran), Pasar dan Jenis Retribusi dapat dipilih manual.
-- Media tampil sebagai field read-only agar user tahu serial yang sedang dicari adalah STRD atau Karcis.
-- Sistem menampilkan range serial yang **sudah didistribusikan ke pasar tersebut dan belum dipakai**.
-- Klik range tersedia akan memilih nomor pertama dari range sebagai bantuan input.
-- Pesan validasi serial sekarang menyebutkan media, pasar, dan range distribusi yang tersedia.
-
-## Format angka
-
-Output uang pada view menggunakan `Helpers/FormatHelper.cs`.
-
-Contoh:
-
-```text
-Rp25.000
-Rp1.250.000
-```
-
-Jangan lagi menulis Razor seperti:
-
-```cshtml
-Rp@Model.Amount.ToString("N0")
-```
-
-Gunakan:
-
-```cshtml
-@FormatHelper.Rupiah(Model.Amount)
-```
-
-
-## Revisi UI modern
-
-Versi terbaru menambahkan:
-
-- tampilan modern minimalis dengan tema biru-ungu
-- dashboard chart yang lebih visual (donut + bar chart)
-- loading overlay untuk semua submit form
-- modal create/edit untuk mayoritas halaman index agar input lebih cepat
-- style tabel, tombol, form, alert dan panel yang lebih modern
-
-
-## Revisi v4 - CRUD modal, Select2, numeric formatting
-
-Perbaikan utama:
-
-- Bug submit modal diperbaiki: form Create/Edit/Delete yang tidak memiliki `action` eksplisit sekarang otomatis menggunakan URL form asal, sehingga POST tidak lagi masuk ke halaman Index/grid.
-- Create/Edit/Delete dibuka sebagai modal pada halaman CRUD yang mendukungnya.
-- Seluruh dropdown di halaman aplikasi diinisialisasi dengan Select2 (dengan fallback ke native select jika library gagal dimuat).
-- Input nominal memakai format ribuan langsung saat mengetik (`1000` -> `1.000`), lalu dinormalisasi menjadi digit murni sebelum POST agar model binding tetap aman.
-- Nomor seri dan nomor telepon hanya menerima digit tanpa separator agar leading zero tetap terjaga.
-- Terminologi penerimaan `VOID` pada UI diganti menjadi `Hapus`; implementasinya tetap soft-delete/audit-friendly dengan status `DELETED`.
-- Aksi Ubah/Hapus di grid menggunakan icon-only button dengan title/aria-label.
-
-
-## Revisi UX v5
-
-- Posisi scroll sidebar disimpan di `sessionStorage`, jadi setelah pindah menu sidebar tetap berada pada posisi sebelumnya.
-- Badge jenis chart seperti Donut / Bar / Tabel di Dashboard dihapus.
-- Area user kanan atas dibuat compact: icon theme, icon user, dan icon logout.
-- Light/Dark mode dapat ditoggle dan preferensi disimpan di `localStorage`.
-- Warna legend/tick/grid Chart.js ikut menyesuaikan ketika theme berubah.
-
-
-## Fix Receipt Unit Auto-fill (v5.1)
-
-Perbaikan bug pada Catat Penerimaan: saat Unit dipilih, frontend tidak lagi mensyaratkan MarketId/RetributionTypeId sudah terisi sebelum memanggil `Receipts/FormContext`. Backend sekarang dapat menurunkan Pasar, Jenis Retribusi, Media, Petugas, Tarif, nominal, dan range serial dari unit, kemudian Select2 di-refresh secara eksplisit.
-
-
-## v6 - SQL Server / Staging Ready
-
-Versi ini mempertahankan UI dan flow v5.1, tetapi persistence sudah diganti:
-
-```text
-Controller / Service
-       ↓
-IRepository<T>
-       ↓
-EF Core Repository
-       ↓
-SQL Server
-```
-
-Perubahan backend:
-
-- `AppDbContext`
-- `EfRepository<T>`
-- `EfDepositRepository` khusus junction Setoran-Penerimaan
-- SQL Server auto-create untuk database staging kosong
-- seed demo idempotent untuk first run
-- SQL schema fallback
-- production connection string template
-- staging publish guide
-
-Untuk panduan publish baca `PUBLISH_STAGING.md`.
-
-
-## v6.1 SQL Server transaction fix
-
-`EnableRetryOnFailure` dihapus dari konfigurasi SQL Server karena aplikasi menggunakan explicit database transactions pada database initializer dan repository setoran. Ini mencegah error `SqlServerRetryingExecutionStrategy does not support user-initiated transactions` pada startup/penggunaan setoran.
+> Demo data should be used for testing. Do not store real personal, financial, or production data in the public staging environment.
